@@ -275,16 +275,6 @@ The tool includes comprehensive error handling for:
 -   Missing required parameters
 -   Corrupted image files
 
-## Contributing
-
-Feel free to extend this tool with additional features such as:
-
--   More artistic filters
--   Advanced color manipulations
--   Image composition features
--   Custom font support for watermarks
--   Integration with cloud storage services
-
 ## License
 
 This project is open source and available under the MIT License.
@@ -295,7 +285,3 @@ This project is open source and available under the MIT License.
 -   Pillow >= 10.0.0
 -   NumPy >= 1.24.0
 -   tkinter (for GUI, usually included with Python)
-
-## Author
-
-Created with GitHub Copilot - June 2025
