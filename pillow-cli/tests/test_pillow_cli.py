@@ -566,7 +566,6 @@ class TestPillowCLI:
         assert os.path.exists(output_path)
         contact_image = Image.open(output_path)
         assert contact_image.size[0] == 800
-        # Fix: The actual implementation creates a 1x4 grid for 4 images, not 2x2
         mock_print.assert_any_call("Created contact sheet with 4 images (1x4 grid)")
     
     def test_create_contact_sheet_empty_list(self, cli, temp_dir):
@@ -618,8 +617,6 @@ class TestPillowCLI:
         output_files = os.listdir(output_dir)
         assert len(output_files) == 3
         
-        # Fix: The actual implementation finds both .jpg and .JPG files, so it finds 6 files total
-        # Let's check for the correct number that the implementation actually finds
         mock_print.assert_any_call("Batch processing complete! Output saved to: " + output_dir)
     
     def test_batch_process_no_images(self, cli, temp_dir):
