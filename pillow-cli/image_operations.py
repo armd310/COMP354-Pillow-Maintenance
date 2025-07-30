@@ -2,7 +2,6 @@
 Image operation classes for complex multi-image processing
 """
 
-import os
 from pathlib import Path
 from PIL import Image
 

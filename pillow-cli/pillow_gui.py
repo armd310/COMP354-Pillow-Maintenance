@@ -2,8 +2,7 @@
 GUI Interface for Pillow CLI - Comprehensive Image Processing Tool
 """
 
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import os
 
@@ -24,69 +23,13 @@ class PillowGUI:
         """Initialize GUI with reference to CLI instance"""
         self.cli = cli_instance
         self.root = None
-        self.setup_variables()
+
         # Preview related attributes
         self.current_image = None
         self.preview_image = None
         self.original_label = None
         self.preview_label = None
         self.preview_enabled = True
-
-    def setup_variables(self):
-        """Initialize all tkinter variables"""
-        # Common variables
-        self.input_var = None
-        self.output_var = None
-        self.operation_var = None
-        self.status_var = None
-
-        # Resize parameters
-        self.width_var = None
-        self.height_var = None
-        self.maintain_aspect_var = None
-
-        # Filter parameters
-        self.filter_type_var = None
-
-        # Adjust parameters
-        self.brightness_var = None
-        self.contrast_var = None
-        self.saturation_var = None
-        self.sharpness_var = None
-
-        # Crop parameters
-        self.crop_x_var = None
-        self.crop_y_var = None
-        self.crop_width_var = None
-        self.crop_height_var = None
-
-        # Rotate parameters
-        self.angle_var = None
-        self.expand_var = None
-
-        # Flip parameters
-        self.direction_var = None
-
-        # Watermark parameters
-        self.watermark_text_var = None
-        self.watermark_pos_var = None
-        self.opacity_var = None
-
-        # Border parameters
-        self.border_width_var = None
-        self.border_color_var = None
-
-        # Vignette parameters
-        self.vignette_strength_var = None
-
-        # Effect parameters
-        self.effect_type_var = None
-
-        # Thumbnail parameters
-        self.thumb_size_var = None
-
-        # GUI components
-        self.params_frame = None
 
     def initialize_variables(self):
         """Initialize tkinter variables with default values"""
@@ -143,6 +86,9 @@ class PillowGUI:
 
         # Thumbnail parameters
         self.thumb_size_var = tk.StringVar(value="128,128")
+
+        # GUI components
+        self.params_frame = None
 
     def get_operation_parameters(self):
         """Extract parameters for the current operation"""

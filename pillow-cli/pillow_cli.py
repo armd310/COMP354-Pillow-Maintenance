@@ -312,18 +312,6 @@ class PillowCLI:
         print(json.dumps(metadata, indent=2, default=str))
         return metadata
 
-    def create_collage(self, input_paths, output_path, cols=2, padding=10):
-        """Create a collage from multiple images"""
-        if not input_paths:
-            raise ValueError("No input images provided")
-
-        images = [self.load_image(path) for path in input_paths]
-        collage_creator = CollageCreator()
-        collage = collage_creator.create_collage(images, cols, padding)
-        self.save_image(collage, output_path)
-        print(
-            f"Created collage with {len(images)} images ({(len(images) + cols - 1) // cols}x{cols} grid)"
-        )
 
     def create_composite(
         self,
@@ -341,20 +329,6 @@ class PillowCLI:
         self.save_image(composite, output_path)
         print(f"Created composite image at position {position} with opacity {opacity}")
 
-    def create_contact_sheet(
-        self, input_paths: list, output_path: str, sheet_width=1200, margin=10
-    ):
-        """Create a contact sheet from multiple images"""
-        if not input_paths:
-            raise ValueError("No input images provided")
-
-        images = [self.load_image(path) for path in input_paths]
-        contact_sheet_creator = ContactSheetCreator()
-        contact_sheet = contact_sheet_creator.create_contact_sheet(
-            images, sheet_width, margin
-        )
-        self.save_image(contact_sheet, output_path)
-        print(f"Created contact sheet with {len(images)} images")
 
     # Color analysis methods (using external module)
     def analyze_histogram(self, input_path: str, output_path=None):
@@ -549,9 +523,8 @@ def main():
         default=[128, 128],
         help="Size for thumbnail operation",
     )
-
-    # GUI command
-    gui_parser = subparsers.add_parser("gui", help="Launch simple GUI")
+    # Launches gui
+    gui_parser = subparsers.add_parser('gui', help='Launch GUI interface')
 
     args = parser.parse_args()
 
