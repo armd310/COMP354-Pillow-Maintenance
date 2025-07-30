@@ -1,6 +1,7 @@
 """
 Image processor classes - each handling a specific type of operation
 """
+
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont, ImageOps
 from abc import ABC, abstractmethod
 
@@ -21,7 +22,9 @@ class BaseImageProcessor(ABC):
 class ResizeProcessor(BaseImageProcessor):
     """Handles image resizing operations"""
 
-    def process(self, image: Image.Image, width=None, height=None, maintain_aspect=True) -> Image.Image:
+    def process(
+        self, image: Image.Image, width=None, height=None, maintain_aspect=True
+    ) -> Image.Image:
         original_width, original_height = image.size
 
         if width and height:
@@ -46,9 +49,11 @@ class ResizeProcessor(BaseImageProcessor):
             raise ValueError("Must specify at least width or height")
 
         resized_image = image.resize(new_size, Image.Resampling.LANCZOS)
-        self.log_operation("Resize",
-                           original_size=f"{original_width}x{original_height}",
-                           new_size=f"{new_size[0]}x{new_size[1]}")
+        self.log_operation(
+            "Resize",
+            original_size=f"{original_width}x{original_height}",
+            new_size=f"{new_size[0]}x{new_size[1]}",
+        )
         return resized_image
 
 
@@ -57,23 +62,25 @@ class FilterProcessor(BaseImageProcessor):
 
     def __init__(self):
         self.filters = {
-            'blur': ImageFilter.BLUR,
-            'contour': ImageFilter.CONTOUR,
-            'detail': ImageFilter.DETAIL,
-            'edge_enhance': ImageFilter.EDGE_ENHANCE,
-            'edge_enhance_more': ImageFilter.EDGE_ENHANCE_MORE,
-            'emboss': ImageFilter.EMBOSS,
-            'find_edges': ImageFilter.FIND_EDGES,
-            'sharpen': ImageFilter.SHARPEN,
-            'smooth': ImageFilter.SMOOTH,
-            'smooth_more': ImageFilter.SMOOTH_MORE,
-            'gaussian_blur': ImageFilter.GaussianBlur(radius=2),
-            'unsharp_mask': ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3)
+            "blur": ImageFilter.BLUR,
+            "contour": ImageFilter.CONTOUR,
+            "detail": ImageFilter.DETAIL,
+            "edge_enhance": ImageFilter.EDGE_ENHANCE,
+            "edge_enhance_more": ImageFilter.EDGE_ENHANCE_MORE,
+            "emboss": ImageFilter.EMBOSS,
+            "find_edges": ImageFilter.FIND_EDGES,
+            "sharpen": ImageFilter.SHARPEN,
+            "smooth": ImageFilter.SMOOTH,
+            "smooth_more": ImageFilter.SMOOTH_MORE,
+            "gaussian_blur": ImageFilter.GaussianBlur(radius=2),
+            "unsharp_mask": ImageFilter.UnsharpMask(radius=2, percent=150, threshold=3),
         }
 
     def process(self, image: Image.Image, filter_type: str) -> Image.Image:
         if filter_type not in self.filters:
-            raise ValueError(f"Unknown filter: {filter_type}. Available: {', '.join(self.filters.keys())}")
+            raise ValueError(
+                f"Unknown filter: {filter_type}. Available: {', '.join(self.filters.keys())}"
+            )
 
         filtered_image = image.filter(self.filters[filter_type])
         self.log_operation("Filter", filter_type=filter_type)
@@ -83,7 +90,14 @@ class FilterProcessor(BaseImageProcessor):
 class AdjustmentProcessor(BaseImageProcessor):
     """Handles image adjustment operations"""
 
-    def process(self, image: Image.Image, brightness=1.0, contrast=1.0, saturation=1.0, sharpness=1.0) -> Image.Image:
+    def process(
+        self,
+        image: Image.Image,
+        brightness=1.0,
+        contrast=1.0,
+        saturation=1.0,
+        sharpness=1.0,
+    ) -> Image.Image:
         result_image = image
 
         if brightness != 1.0:
@@ -102,32 +116,42 @@ class AdjustmentProcessor(BaseImageProcessor):
             enhancer = ImageEnhance.Sharpness(result_image)
             result_image = enhancer.enhance(sharpness)
 
-        self.log_operation("Adjustment",
-                           brightness=brightness, contrast=contrast,
-                           saturation=saturation, sharpness=sharpness)
+        self.log_operation(
+            "Adjustment",
+            brightness=brightness,
+            contrast=contrast,
+            saturation=saturation,
+            sharpness=sharpness,
+        )
         return result_image
 
 
 class CropProcessor(BaseImageProcessor):
     """Handles image cropping operations"""
 
-    def process(self, image: Image.Image, x: int, y: int, width: int, height: int) -> Image.Image:
+    def process(
+        self, image: Image.Image, x: int, y: int, width: int, height: int
+    ) -> Image.Image:
         img_width, img_height = image.size
         if x + width > img_width or y + height > img_height:
-            raise ValueError(f"Crop dimensions exceed image size ({img_width}x{img_height})")
+            raise ValueError(
+                f"Crop dimensions exceed image size ({img_width}x{img_height})"
+            )
 
         cropped_image = image.crop((x, y, x + width, y + height))
-        self.log_operation("Crop",
-                           position=f"({x}, {y})",
-                           dimensions=f"{width}x{height}")
+        self.log_operation(
+            "Crop", position=f"({x}, {y})", dimensions=f"{width}x{height}"
+        )
         return cropped_image
 
 
 class RotateProcessor(BaseImageProcessor):
     """Handles image rotation operations"""
 
-    def process(self, image: Image.Image, angle: float, expand: bool = True) -> Image.Image:
-        rotated_image = image.rotate(angle, expand=expand, fillcolor='white')
+    def process(
+        self, image: Image.Image, angle: float, expand: bool = True
+    ) -> Image.Image:
+        rotated_image = image.rotate(angle, expand=expand, fillcolor="white")
         self.log_operation("Rotate", angle=angle, expand=expand)
         return rotated_image
 
@@ -135,10 +159,10 @@ class RotateProcessor(BaseImageProcessor):
 class FlipProcessor(BaseImageProcessor):
     """Handles image flipping operations"""
 
-    def process(self, image: Image.Image, direction: str = 'horizontal') -> Image.Image:
-        if direction == 'horizontal':
+    def process(self, image: Image.Image, direction: str = "horizontal") -> Image.Image:
+        if direction == "horizontal":
             flipped_image = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-        elif direction == 'vertical':
+        elif direction == "vertical":
             flipped_image = image.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
         else:
             raise ValueError("Direction must be 'horizontal' or 'vertical'")
@@ -150,10 +174,12 @@ class FlipProcessor(BaseImageProcessor):
 class FormatProcessor(BaseImageProcessor):
     """Handles image format conversion"""
 
-    def process(self, image: Image.Image, format_type: str = 'PNG') -> Image.Image:
-        if format_type.upper() == 'JPEG' and image.mode in ('RGBA', 'LA'):
-            background = Image.new('RGB', image.size, (255, 255, 255))
-            background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+    def process(self, image: Image.Image, format_type: str = "PNG") -> Image.Image:
+        if format_type.upper() == "JPEG" and image.mode in ("RGBA", "LA"):
+            background = Image.new("RGB", image.size, (255, 255, 255))
+            background.paste(
+                image, mask=image.split()[-1] if image.mode == "RGBA" else None
+            )
             converted_image = background
         else:
             converted_image = image
@@ -177,16 +203,21 @@ class WatermarkProcessor(BaseImageProcessor):
 
     def __init__(self):
         self.positions = {
-            'top-left': self._calculate_top_left,
-            'top-right': self._calculate_top_right,
-            'bottom-left': self._calculate_bottom_left,
-            'bottom-right': self._calculate_bottom_right,
-            'center': self._calculate_center
+            "top-left": self._calculate_top_left,
+            "top-right": self._calculate_top_right,
+            "bottom-left": self._calculate_bottom_left,
+            "bottom-right": self._calculate_bottom_right,
+            "center": self._calculate_center,
         }
 
-    def process(self, image: Image.Image, watermark_text: str,
-                position: str = 'bottom-right', opacity: int = 128) -> Image.Image:
-        overlay = Image.new('RGBA', image.size, (255, 255, 255, 0))
+    def process(
+        self,
+        image: Image.Image,
+        watermark_text: str,
+        position: str = "bottom-right",
+        opacity: int = 128,
+    ) -> Image.Image:
+        overlay = Image.new("RGBA", image.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(overlay)
 
         font = self._get_font()
@@ -195,16 +226,23 @@ class WatermarkProcessor(BaseImageProcessor):
         text_height = bbox[3] - bbox[1]
 
         if position not in self.positions:
-            raise ValueError(f"Invalid position. Available: {', '.join(self.positions.keys())}")
+            raise ValueError(
+                f"Invalid position. Available: {', '.join(self.positions.keys())}"
+            )
 
         x, y = self.positions[position](image.size, text_width, text_height)
 
         # Draw text with semi-transparent background
-        draw.rectangle([x - 5, y - 5, x + text_width + 5, y + text_height + 5], fill=(0, 0, 0, opacity // 2))
+        draw.rectangle(
+            [x - 5, y - 5, x + text_width + 5, y + text_height + 5],
+            fill=(0, 0, 0, opacity // 2),
+        )
         draw.text((x, y), watermark_text, font=font, fill=(255, 255, 255, opacity))
 
-        watermarked_image = Image.alpha_composite(image.convert('RGBA'), overlay)
-        self.log_operation("Watermark", text=watermark_text, position=position, opacity=opacity)
+        watermarked_image = Image.alpha_composite(image.convert("RGBA"), overlay)
+        self.log_operation(
+            "Watermark", text=watermark_text, position=position, opacity=opacity
+        )
         return watermarked_image
 
     def _get_font(self):
@@ -235,18 +273,20 @@ class EffectProcessor(BaseImageProcessor):
 
     def __init__(self):
         self.effects = {
-            'sepia': self._apply_sepia,
-            'grayscale': self._apply_grayscale,
-            'invert': self._apply_invert,
-            'posterize': self._apply_posterize,
-            'solarize': self._apply_solarize
+            "sepia": self._apply_sepia,
+            "grayscale": self._apply_grayscale,
+            "invert": self._apply_invert,
+            "posterize": self._apply_posterize,
+            "solarize": self._apply_solarize,
         }
 
-    def process(self, image: Image.Image, effect: str = 'sepia') -> Image.Image:
+    def process(self, image: Image.Image, effect: str = "sepia") -> Image.Image:
         if effect not in self.effects:
-            raise ValueError(f"Unknown effect: {effect}. Available: {', '.join(self.effects.keys())}")
+            raise ValueError(
+                f"Unknown effect: {effect}. Available: {', '.join(self.effects.keys())}"
+            )
 
-        processed_image = self.effects[effect](image.convert('RGB'))
+        processed_image = self.effects[effect](image.convert("RGB"))
         self.log_operation("Effect", effect=effect)
         return processed_image
 
@@ -279,14 +319,16 @@ class BorderProcessor(BaseImageProcessor):
 
     def __init__(self):
         self.color_map = {
-            'black': (0, 0, 0),
-            'white': (255, 255, 255),
-            'red': (255, 0, 0),
-            'green': (0, 255, 0),
-            'blue': (0, 0, 255)
+            "black": (0, 0, 0),
+            "white": (255, 255, 255),
+            "red": (255, 0, 0),
+            "green": (0, 255, 0),
+            "blue": (0, 0, 255),
         }
 
-    def process(self, image: Image.Image, border_width: int = 10, border_color='black') -> Image.Image:
+    def process(
+        self, image: Image.Image, border_width: int = 10, border_color="black"
+    ) -> Image.Image:
         parsed_color = self._parse_color(border_color)
         bordered_image = ImageOps.expand(image, border=border_width, fill=parsed_color)
         self.log_operation("Border", width=border_width, color=parsed_color)
@@ -295,8 +337,8 @@ class BorderProcessor(BaseImageProcessor):
     def _parse_color(self, color):
         """Parse color from various formats"""
         if isinstance(color, str):
-            if color.startswith('#'):
-                return tuple(int(color[i:i + 2], 16) for i in (1, 3, 5))
+            if color.startswith("#"):
+                return tuple(int(color[i: i + 2], 16) for i in (1, 3, 5))
             elif color in self.color_map:
                 return self.color_map[color]
         return color
@@ -306,10 +348,10 @@ class VignetteProcessor(BaseImageProcessor):
     """Handles vignette effect"""
 
     def process(self, image: Image.Image, strength: float = 0.5) -> Image.Image:
-        image = image.convert('RGBA')
+        image = image.convert("RGBA")
         width, height = image.size
 
-        mask = Image.new('L', (width, height), 0)
+        mask = Image.new("L", (width, height), 0)
         mask_draw = ImageDraw.Draw(mask)
 
         center_x, center_y = width // 2, height // 2
@@ -319,10 +361,17 @@ class VignetteProcessor(BaseImageProcessor):
         for i in range(steps):
             radius = max_radius * (i / steps)
             alpha = int(255 * (1 - strength * (i / steps)))
-            mask_draw.ellipse([center_x - radius, center_y - radius,
-                               center_x + radius, center_y + radius], fill=alpha)
+            mask_draw.ellipse(
+                [
+                    center_x - radius,
+                    center_y - radius,
+                    center_x + radius,
+                    center_y + radius,
+                ],
+                fill=alpha,
+            )
 
-        vignette_overlay = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        vignette_overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         vignette_overlay.putalpha(mask)
 
         result = Image.alpha_composite(image, vignette_overlay)

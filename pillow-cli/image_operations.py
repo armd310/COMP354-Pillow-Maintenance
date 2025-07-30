@@ -1,6 +1,7 @@
 """
 Image operation classes for complex multi-image processing
 """
+
 import os
 from pathlib import Path
 from PIL import Image
@@ -14,11 +15,14 @@ class CollageCreator:
         max_width = max(img.width for img in images)
         max_height = max(img.height for img in images)
 
-        resized_images = [img.resize((max_width, max_height), Image.Resampling.LANCZOS) for img in images]
+        resized_images = [
+            img.resize((max_width, max_height), Image.Resampling.LANCZOS)
+            for img in images
+        ]
 
         collage_width = cols * max_width + (cols + 1) * padding
         collage_height = rows * max_height + (rows + 1) * padding
-        collage = Image.new('RGB', (collage_width, collage_height), 'white')
+        collage = Image.new("RGB", (collage_width, collage_height), "white")
 
         for i, img in enumerate(resized_images):
             row = i // cols
@@ -33,16 +37,21 @@ class CollageCreator:
 class ImageCompositor:
     """Handles image composition logic"""
 
-    def create_composite(self, background: Image.Image, overlay: Image.Image, position: tuple,
-                         opacity: float) -> Image.Image:
-        background = background.convert('RGBA')
-        overlay = overlay.convert('RGBA')
+    def create_composite(
+        self,
+        background: Image.Image,
+        overlay: Image.Image,
+        position: tuple,
+        opacity: float,
+    ) -> Image.Image:
+        background = background.convert("RGBA")
+        overlay = overlay.convert("RGBA")
 
         if opacity < 1.0:
             overlay = overlay.copy()
             overlay.putalpha(int(255 * opacity))
 
-        composite = Image.new('RGBA', background.size, (0, 0, 0, 0))
+        composite = Image.new("RGBA", background.size, (0, 0, 0, 0))
         composite.paste(background, (0, 0))
         composite.paste(overlay, position, overlay)
 
@@ -52,7 +61,9 @@ class ImageCompositor:
 class ContactSheetCreator:
     """Handles contact sheet creation logic"""
 
-    def create_contact_sheet(self, images: list, sheet_width: int, margin: int) -> Image.Image:
+    def create_contact_sheet(
+        self, images: list, sheet_width: int, margin: int
+    ) -> Image.Image:
         cols = min(4, len(images))
         rows = (len(images) + cols - 1) // cols
 
@@ -60,7 +71,7 @@ class ContactSheetCreator:
         thumb_height = thumb_width
         sheet_height = rows * thumb_height + margin * (rows + 1)
 
-        contact_sheet = Image.new('RGB', (sheet_width, sheet_height), 'white')
+        contact_sheet = Image.new("RGB", (sheet_width, sheet_height), "white")
 
         for i, img in enumerate(images):
             img.thumbnail((thumb_width, thumb_height), Image.Resampling.LANCZOS)
@@ -86,7 +97,9 @@ class BatchProcessor:
     def __init__(self, cli_instance):
         self.cli = cli_instance
 
-    def process_directory(self, input_dir: str, output_dir: str, operation: str, **kwargs):
+    def process_directory(
+        self, input_dir: str, output_dir: str, operation: str, **kwargs
+    ):
         input_path = Path(input_dir)
         output_path = Path(output_dir)
 
@@ -103,11 +116,11 @@ class BatchProcessor:
         print(f"Processing {len(image_files)} images...")
 
         operation_map = {
-            'resize': self.cli.resize_image,
-            'filter': self.cli.apply_filters,
-            'adjust': self.cli.adjust_image,
-            'effect': self.cli.apply_artistic_effects,
-            'thumbnail': self.cli.create_thumbnail
+            "resize": self.cli.resize_image,
+            "filter": self.cli.apply_filters,
+            "adjust": self.cli.adjust_image,
+            "effect": self.cli.apply_artistic_effects,
+            "thumbnail": self.cli.create_thumbnail,
         }
 
         if operation not in operation_map:
@@ -129,7 +142,15 @@ class BatchProcessor:
 
     def _find_image_files(self, directory: Path):
         """Find all image files in directory"""
-        supported_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp'}
+        supported_extensions = {
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".bmp",
+            ".gif",
+            ".tiff",
+            ".webp",
+        }
         image_files = []
 
         for file_path in directory.iterdir():

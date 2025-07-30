@@ -1,6 +1,7 @@
 """
 Color analysis utilities for image processing
 """
+
 import os
 import json
 import numpy as np
@@ -9,8 +10,8 @@ from PIL import Image
 
 def analyze_histogram(image, input_path, output_path=None):
     """Analyze and optionally save image histogram"""
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
     # Calculate histogram for each channel
     hist_r = image.histogram()[0:256]
@@ -18,10 +19,10 @@ def analyze_histogram(image, input_path, output_path=None):
     hist_b = image.histogram()[512:768]
 
     histogram_data = {
-        'red_channel': hist_r,
-        'green_channel': hist_g,
-        'blue_channel': hist_b,
-        'total_pixels': image.width * image.height
+        "red_channel": hist_r,
+        "green_channel": hist_g,
+        "blue_channel": hist_b,
+        "total_pixels": image.width * image.height,
     }
 
     print(f"Image: {os.path.basename(input_path)}")
@@ -36,7 +37,7 @@ def analyze_histogram(image, input_path, output_path=None):
     print(f"Average RGB values: R={avg_r:.1f}, G={avg_g:.1f}, B={avg_b:.1f}")
 
     if output_path:
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(histogram_data, f, indent=2)
         print(f"Histogram data saved to: {output_path}")
 
@@ -45,8 +46,8 @@ def analyze_histogram(image, input_path, output_path=None):
 
 def extract_color_palette(image, input_path, num_colors=5):
     """Extract dominant colors from image"""
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
     # Resize image for faster processing
     image_resized = image.resize((150, 150))
@@ -58,13 +59,14 @@ def extract_color_palette(image, input_path, num_colors=5):
     # Use k-means clustering to find dominant colors
     try:
         from sklearn.cluster import KMeans
+
         kmeans = KMeans(n_clusters=num_colors, random_state=42, n_init=10)
         kmeans.fit(pixels)
         colors = kmeans.cluster_centers_.astype(int)
 
         print(f"Dominant colors in {os.path.basename(input_path)}:")
         for i, color in enumerate(colors, 1):
-            hex_color = '#{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
+            hex_color = "#{:02x}{:02x}{:02x}".format(color[0], color[1], color[2])
             print(f"  {i}. RGB({color[0]}, {color[1]}, {color[2]}) - {hex_color}")
 
         return colors.tolist()
@@ -82,7 +84,7 @@ def extract_color_palette(image, input_path, num_colors=5):
 
         print(f"Most common colors in {os.path.basename(input_path)}:")
         for i, color in enumerate(top_colors, 1):
-            hex_color = '#{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
+            hex_color = "#{:02x}{:02x}{:02x}".format(color[0], color[1], color[2])
             print(f"  {i}. RGB({color[0]}, {color[1]}, {color[2]}) - {hex_color}")
 
         return top_colors
@@ -90,8 +92,8 @@ def extract_color_palette(image, input_path, num_colors=5):
 
 def split_channels(image, input_path, output_dir):
     """Split image into separate color channels"""
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
     from pathlib import Path
 
@@ -109,13 +111,21 @@ def split_channels(image, input_path, output_dir):
     b_path = output_path / f"{base_name}_blue.png"
 
     # Convert to RGB for saving (grayscale channels)
-    r_img = Image.merge('RGB', [r, Image.new('L', image.size, 0), Image.new('L', image.size, 0)])
-    g_img = Image.merge('RGB', [Image.new('L', image.size, 0), g, Image.new('L', image.size, 0)])
-    b_img = Image.merge('RGB', [Image.new('L', image.size, 0), Image.new('L', image.size, 0), b])
+    r_img = Image.merge(
+        "RGB", [r, Image.new("L", image.size, 0), Image.new("L", image.size, 0)]
+    )
+    g_img = Image.merge(
+        "RGB", [Image.new("L", image.size, 0), g, Image.new("L", image.size, 0)]
+    )
+    b_img = Image.merge(
+        "RGB", [Image.new("L", image.size, 0), Image.new("L", image.size, 0), b]
+    )
 
     # Save using the same quality settings as the main class
     def save_channel(img, path):
-        os.makedirs(os.path.dirname(path) if os.path.dirname(path) else '.', exist_ok=True)
+        os.makedirs(
+            os.path.dirname(path) if os.path.dirname(path) else ".", exist_ok=True
+        )
         img.save(path, quality=95, optimize=True)
 
     save_channel(r_img, str(r_path))
